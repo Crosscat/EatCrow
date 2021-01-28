@@ -41,9 +41,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Player
-    uniqueID: 707425101
+  - name: Background
+    uniqueID: 2092099723
     locked: 0
   - name: Collectable
     uniqueID: 831819013
+    locked: 0
+  - name: Player
+    uniqueID: 707425101
+    locked: 0
+  - name: WallsFloors
+    uniqueID: 251644913
     locked: 0

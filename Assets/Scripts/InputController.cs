@@ -5,6 +5,8 @@ public class InputController : MonoBehaviour
 {
     public static event EventHandler<InfoEventArgs<Vector2>> ChangeAxisEvent;
     public static event EventHandler JumpPressedEvent;
+    public static event EventHandler ActionPressedEvent;
+    public static event EventHandler ActionReleasedEvent;
 
     private static int _xAxis;
     private static int _yAxis;
@@ -24,6 +26,16 @@ public class InputController : MonoBehaviour
         if (Input.GetButtonDown("Jump"))
         {
             JumpPressedEvent?.Invoke(this, null);
+        }
+
+        if (Input.GetButtonDown("Action"))
+        {
+            ActionPressedEvent?.Invoke(this, null);
+        }
+
+        if (Input.GetButtonUp("Action"))
+        {
+            ActionReleasedEvent?.Invoke(this, null);
         }
     }
 

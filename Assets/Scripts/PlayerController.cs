@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+using System.Linq;
+
 public class PlayerController : StateMachine
 {
     public float MoveSpeed;
@@ -10,10 +12,12 @@ public class PlayerController : StateMachine
     public float CaloriesEaten = 0;
 
     private Physics _physics;
+    private FoodTracker _foodTracker;
 
     private void Awake()
     {
         _physics = GetComponent<Physics>();
+        _foodTracker = GetComponent<FoodTracker>();
 
         ChangeState<PlayerIdleState>();
     }
@@ -28,15 +32,23 @@ public class PlayerController : StateMachine
         _physics.ForceJump(8);
     }
 
-    public Food CheckCanEat()
+    public bool AllowedToEat()
     {
-        //TODO something real
-        return null;
+        //TODO add rules
+        return true;
+    }
+
+    public Food TryFindFood()
+    {
+        //Find closest overlapping food, if any
+        return _foodTracker.triggered
+                           .OrderBy(it => (this.transform.position - it.transform.position).sqrMagnitude)
+                           .FirstOrDefault();
     }
 
     public void ConsumeCalories(float calories)
     {
-        CaloriesEaten = calories;
+        CaloriesEaten += calories;
     }
 }
 
@@ -103,10 +115,11 @@ public class PlayerIdleState : PlayerState
     {
         base.OnActionPressed(sender, e);
 
-        Food foodToEat = _player.CheckCanEat();
-        //if (foodToEat != null)
-
-        _player.ChangeState<PlayerEatingState>();
+        Food foodToEat = _player.TryFindFood();
+        if (_player.AllowedToEat() && foodToEat != null)
+        {
+            _player.ChangeState<PlayerEatingState>();
+        }
     }
 }
 
@@ -131,15 +144,15 @@ public class PlayerEatingState : PlayerState
     {
         base.StateUpdate();
 
-        //Food foodToEat = _player.CheckCanEat();
-        //if (foodToEat != null)
-        //{
-        //    _player.ChangeState<PlayerIdleState>();
-        //    return;
-        //}
+        Food foodToEat = _player.TryFindFood();
+        if (!_player.AllowedToEat() || foodToEat == null)
+        {
+            _player.ChangeState<PlayerIdleState>();
+            return;
+        }
 
-        //float calories = foodToEat.eat(Time.deltaTime * _player.EatingSpeed);
-        //_player.ConsumeCalories(calories);
+        float calories = foodToEat.eat(Time.deltaTime * _player.EatingSpeed);
+        _player.ConsumeCalories(calories);
     }
 
     protected override void OnActionReleased(object sender, EventArgs e)

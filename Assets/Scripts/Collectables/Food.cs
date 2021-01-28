@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-public class Food : Collectable
+public class Food : MonoBehaviour
 {
 
     public float initialVolume = 5;
@@ -28,6 +28,7 @@ public class Food : Collectable
 
         if (remainingVolume == 0)
         {
+            Debug.Log(gameObject.name + " fully eaten.");
             Destroy(this.gameObject);
         }
 
@@ -40,6 +41,5 @@ public class Food : Collectable
         Destroy(this.gameObject);
         return remainingVolume * caloriesPerVolume;
     }
-
 
 }

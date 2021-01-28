@@ -1,0 +1,1 @@
+public class FoodTracker : TriggerTracker<Food> { }

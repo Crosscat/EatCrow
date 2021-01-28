@@ -4,6 +4,7 @@ using UnityEngine;
 public class InputController : MonoBehaviour
 {
     public static event EventHandler<InfoEventArgs<Vector2>> ChangeAxisEvent;
+    public static event EventHandler JumpPressedEvent;
 
     private static int _xAxis;
     private static int _yAxis;
@@ -17,7 +18,12 @@ public class InputController : MonoBehaviour
         {
             _xAxis = x;
             _yAxis = y;
-            ChangeAxisEvent(this, new InfoEventArgs<Vector2>(GetAxis()));
+            ChangeAxisEvent?.Invoke(this, new InfoEventArgs<Vector2>(GetAxis()));
+        }
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            JumpPressedEvent?.Invoke(this, null);
         }
     }
 

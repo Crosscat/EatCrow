@@ -17,6 +17,7 @@ guidmapper
 Build
 Builds/
 Library/
+Logs/
 Unity.userprefs
 Assembly-CSharp-Editor-vs.csproj
 Assembly-CSharp-Editor.csproj

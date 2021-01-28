@@ -20,7 +20,7 @@ public class PlayerCamera : MonoBehaviour
         playerTransform = GameObject.FindObjectOfType<PlayerController>().transform;
     }
 
-    private void LateUpdate()
+    private void FixedUpdate()
     {
         Vector2 extents = new Vector2(camera.orthographicSize * Screen.width / Screen.height, camera.orthographicSize);
 
@@ -30,7 +30,8 @@ public class PlayerCamera : MonoBehaviour
             -10
         );
 
-        transform.position = Vector3.Lerp(transform.position, target, 10 * Time.deltaTime);
+        //transform.position = Vector3.Lerp(transform.position, target, 10 * Time.deltaTime);
+        transform.position = target;
     }
 
     private void OnDrawGizmos()

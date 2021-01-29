@@ -34,7 +34,11 @@ public class CatAI : StateMachine
         physics = GetComponent<Physics>();
 
         //TODO: set this properly
-        walkZone = GameObject.FindObjectsOfType<AIZone>().First(it => it.walkable);
+        //Currently just picks the closest zone
+        walkZone = GameObject.FindObjectsOfType<AIZone>()
+                             .Where(it => it.walkable)
+                             .OrderBy(it => (it.transform.position - this.transform.position).sqrMagnitude)
+                             .First();
 
         ChangeState<CatWanderState>();
     }

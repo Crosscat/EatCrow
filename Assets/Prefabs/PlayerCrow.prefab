@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2124918421429707928}
   - component: {fileID: 2124918421429707921}
   - component: {fileID: 2124918421429707922}
+  - component: {fileID: 1473649372}
   m_Layer: 0
   m_Name: PlayerCrow
   m_TagString: Untagged
@@ -101,6 +102,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoveSpeed: 5
   HorizontalMoveAcceleration: 100
+  JumpPower: 8
+  EatingSpeed: 1
+  CaloriesEaten: 0
 --- !u!50 &2124918420468826977
 Rigidbody2D:
   serializedVersion: 4
@@ -161,11 +165,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IgnoredObjects: []
+  RaycastTargets:
+  - Mask:
+      serializedVersion: 2
+      m_Bits: 64
+    IgnoredDirections: []
+  - Mask:
+      serializedVersion: 2
+      m_Bits: 1024
+    IgnoredDirections:
+    - {x: 0, y: 1}
+    - {x: 1, y: 0}
+    - {x: -1, y: 0}
   Collider: {fileID: 2124918421429707928}
   NumOfRaycastsWidth: 3
-  ObstacleLayerMask:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &2124918421429707922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,3 +194,15 @@ MonoBehaviour:
   Velocity: {x: 0, y: 0}
   HasGravity: 1
   DisableCollisions: 0
+--- !u!114 &1473649372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2124918420468826981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe022a6c66f7c946bcf6ac9fd1db460, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

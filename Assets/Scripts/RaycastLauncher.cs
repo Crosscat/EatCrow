@@ -1,26 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class RaycastLauncher : MonoBehaviour
 {
     public List<Transform> IgnoredObjects = new List<Transform>();
+    public List<RaycastTarget> RaycastTargets = new List<RaycastTarget>();
 
     public Collider2D Collider;
     public float NumOfRaycastsWidth = 3;
-
-    public LayerMask ObstacleLayerMask = 1 << 6;
 
     public List<RaycastHit2D> GetHitData(Vector2 direction, float rayDistance, float margin)
     {
         var points = GetRaycastOrigins(direction, margin);
         var hits = new List<RaycastHit2D>();
 
-        foreach (var point in points)
+        foreach (var target in RaycastTargets)
         {
-            var hitData = Physics2D.Raycast(point, direction.normalized, rayDistance, ObstacleLayerMask);
-            if (IgnoredObjects.Contains(hitData.transform)) continue;
-            hits.Add(hitData);
+            if (target.IgnoredDirections.Contains(direction.normalized)) continue;
+
+            foreach (var point in points)
+            {
+                var hitData = Physics2D.Raycast(point, direction.normalized, rayDistance, target.Mask);
+                if (IgnoredObjects.Contains(hitData.transform)) continue;
+                hits.Add(hitData);
+            }
         }
+        
         return hits;
     }
 
@@ -87,4 +93,11 @@ public class RaycastLauncher : MonoBehaviour
 
         return targetVector;
     }
+}
+
+[Serializable]
+public struct RaycastTarget
+{
+    public LayerMask Mask;
+    public List<Vector2> IgnoredDirections;
 }

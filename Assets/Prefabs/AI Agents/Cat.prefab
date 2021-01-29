@@ -126,11 +126,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IgnoredObjects: []
+  RaycastTargets:
+  - Mask:
+      serializedVersion: 2
+      m_Bits: 64
+    IgnoredDirections: []
+  - Mask:
+      serializedVersion: 2
+      m_Bits: 1088
+    IgnoredDirections:
+    - {x: 1, y: 0}
+    - {x: -1, y: 0}
+    - {x: 0, y: 1}
   Collider: {fileID: 6484591649993012301}
   NumOfRaycastsWidth: 3
-  ObstacleLayerMask:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &6484591649993012291
 MonoBehaviour:
   m_ObjectHideFlags: 0

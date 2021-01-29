@@ -55,7 +55,7 @@ public class StateMachine : MonoBehaviour
         _inTransition = false;
     }
 
-    public void Update()
+    public virtual void Update()
     {
         if (_currentState == null) return;
 

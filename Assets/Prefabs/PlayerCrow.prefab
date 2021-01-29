@@ -101,10 +101,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 5
-  HorizontalMoveAcceleration: 100
+  HorizontalMoveAcceleration: 0.5
   JumpPower: 8
   EatingSpeed: 1
   CaloriesEaten: 0
+  CalorieAccelerationFactor: 0.05
+  CalorieJumpFactor: 0.02
 --- !u!50 &2124918420468826977
 Rigidbody2D:
   serializedVersion: 4

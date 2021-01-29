@@ -1494,10 +1494,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4555047135749827421, guid: 1821533bf9e887c4aae1a3460e3bccae, type: 3}
-      propertyPath: initialVolume
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 7829688510477682479, guid: 1821533bf9e887c4aae1a3460e3bccae, type: 3}
       propertyPath: m_Name
       value: Bread (1)

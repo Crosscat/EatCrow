@@ -112,5 +112,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c1266996dbf5be4c82bd5d0a0130690, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialVolume: 5
+  initialVolume: 2
   caloriesPerVolume: 1

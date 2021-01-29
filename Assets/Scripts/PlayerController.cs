@@ -11,6 +11,9 @@ public class PlayerController : StateMachine
     public float JumpPower;
 
     public float EatingSpeed = 1;
+    public float CalorieAccelerationFactor = .05f;
+    public float CalorieJumpFactor = .02f;
+    public float CalorieSpeedFactor = .01f;
 
     public float CaloriesEaten = 0;
 
@@ -20,6 +23,18 @@ public class PlayerController : StateMachine
     private Physics _physics;
     private FoodTracker _foodTracker;
     private float _fallThroughTimer;
+
+    private float AdjustedHorizontalMoveAcceleration
+    {
+        get { return HorizontalMoveAcceleration / (1 + CalorieAccelerationFactor * CaloriesEaten); }
+    }
+
+    private float AdjustedJumpPower
+    {
+        get { return JumpPower / (1 + CalorieJumpFactor * CaloriesEaten); }
+    }
+
+
 
     private void Awake()
     {
@@ -51,12 +66,12 @@ public class PlayerController : StateMachine
 
     public void Move(Vector2 direction)
     {
-        _physics.Move(direction, MoveSpeed, HorizontalMoveAcceleration);
+        _physics.Move(direction, MoveSpeed, AdjustedHorizontalMoveAcceleration);
     }
 
     public void Jump()
     {
-        _physics.ForceJump(JumpPower);
+        _physics.ForceJump(AdjustedJumpPower);
     }
 
     public bool AllowedToEat()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using System.Linq;
 
 public class CatAI : StateMachine
 {
+    public Methodology methodology;
     public float walkSpeed=1;
     public float runSpeed=2;
     public float moveAcceleration;
@@ -17,6 +19,7 @@ public class CatAI : StateMachine
     public Physics physics { get; private set; }
     public AIZone walkZone { get; private set; }
     public PlayerController player { get; private set; }
+    public StateSelector stateSelector { get; private set; }
 
     private Animator animator;
     private SpriteRenderer spriteRenderer;
@@ -36,12 +39,40 @@ public class CatAI : StateMachine
         get { return physics.Velocity; }
     }
 
+    public enum Methodology
+    {
+        Standard,
+        Hunter
+    }
+
     public enum Animation
     {
         Idle = 0,
         Walk = 1,
         Run = 1,
         Attack = 1,
+    }
+
+    private void Awake()
+    {
+        switch(methodology)
+        {
+            case Methodology.Standard: stateSelector = new StateSelector()
+            {
+                Idle = () => ChangeState<CatNoopState>(),
+                Passive = () => ChangeState<CatWanderState>(),
+                Chase = () => ChangeState<CatChaseState>(),
+                Attack = () => ChangeState<CatAttackState>(),
+            }; break;
+
+            case Methodology.Hunter: stateSelector = new StateSelector()
+            {
+                Idle = () => ChangeState<CatNoopState>(),
+                Passive = () => ChangeState<CatWanderState>(),
+                Chase = () => ChangeState<CatChaseState>(),
+                Attack = () => ChangeState<CatAttackState>(),
+            }; break;
+        }
     }
 
     private void Start()
@@ -58,7 +89,7 @@ public class CatAI : StateMachine
                              .OrderBy(it => (it.transform.position - this.transform.position).sqrMagnitude)
                              .First();
 
-        ChangeState<CatWanderState>();
+        stateSelector.Passive();
     }
 
     new public void ChangeState<T>() where T : CatAIState
@@ -127,132 +158,144 @@ public class CatAI : StateMachine
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, deAgroRange);
+
+        if (walkZone != null)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(transform.position + Vector3.up, walkZone.Rect.bottomLeft());
+            Gizmos.DrawLine(transform.position + Vector3.up, walkZone.Rect.bottomRight());
+        }
     }
 
-    
-
+    public class StateSelector
+    {
+        public Action Idle;
+        public Action Passive;
+        public Action Chase;
+        public Action Attack;
+    }
 }
 
 public abstract class CatAIState : State
+{
+    public CatAI catAI;
+}
+
+public class CatWanderState : CatAIState
+{
+    private float target;
+
+    private const float TARGET_SATISFACTION = .2f;
+
+    public override void Enter()
     {
-        public CatAI catAI;
+        base.Enter();
+
+        catAI.Animate(CatAI.Animation.Walk);
+        SelectTarget();
     }
 
-    public class CatWanderState : CatAIState
+    public override void StateUpdate()
     {
-        private float target;
+        base.StateUpdate();
 
-        private const float TARGET_SATISFACTION = .2f;
-
-        public override void Enter()
+        if (catAI.PlayerInsideAgroRadius() && catAI.PlayerInsideWalkzoneX())
         {
-            base.Enter();
+            catAI.stateSelector.Chase();
+            return;
+        }
 
-            catAI.Animate(CatAI.Animation.Walk);
+        while (Mathf.Abs(target - catAI.transform.position.x) < TARGET_SATISFACTION)
+        {
             SelectTarget();
         }
 
-        public override void StateUpdate()
-        {
-            base.StateUpdate();
+        Debug.DrawLine(catAI.transform.position, new Vector2(target, catAI.transform.position.y), Color.blue);
 
-            if (catAI.PlayerInsideAgroRadius() && catAI.PlayerInsideWalkzoneX())
-            {
-                catAI.ChangeState<CatChaseState>();
-                return;
-            }
-
-            while (Mathf.Abs(target - catAI.transform.position.x) < TARGET_SATISFACTION)
-            {
-                SelectTarget();
-            }
-
-            Debug.DrawLine(catAI.transform.position, new Vector2(target, catAI.transform.position.y), Color.blue);
-
-            catAI.Walk(Mathf.Sign(target - catAI.transform.position.x) * Vector2.right);
-        }
-
-        private void SelectTarget()
-        {
-            target = Random.Range(catAI.walkZone.Rect.xMin, catAI.walkZone.Rect.xMax);
-        }
+        catAI.Walk(Mathf.Sign(target - catAI.transform.position.x) * Vector2.right);
     }
 
-    public class CatChaseState : CatAIState
+    private void SelectTarget()
     {
-        private const float xSatisfaction = .2f;
+        target = UnityEngine.Random.Range(catAI.walkZone.Rect.xMin, catAI.walkZone.Rect.xMax);
+    }
+}
 
-        public override void StateUpdate()
+public class CatChaseState : CatAIState
+{
+    private const float xSatisfaction = .2f;
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
+        if (catAI.PlayerOutsideDeAgroRadius() || !catAI.PlayerInsideWalkzoneX())
         {
-            base.StateUpdate();
+            catAI.stateSelector.Passive();
+            return;
+        }
 
-            if (catAI.PlayerOutsideDeAgroRadius() || !catAI.PlayerInsideWalkzoneX())
-            {
-                catAI.ChangeState<CatWanderState>();
-                return;
-            }
+        if (catAI.PlayerInsideKillRadius())
+        {
+            catAI.stateSelector.Attack();
+            return;
+        }
 
+        //Don't move if already very close to crow's x position, 
+        //such as when the crow flies directly above
+        if (Mathf.Abs(catAI.deltaToPlayer.x) > xSatisfaction)
+        {
+            catAI.Animate(CatAI.Animation.Run);
+            catAI.Run(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
+        }
+        else
+        {
+            catAI.Animate(CatAI.Animation.Idle);
+            catAI.Stop();
+        }
+
+        Debug.DrawLine(catAI.transform.position, catAI.player.transform.position, Color.yellow);
+    }
+}
+
+public class CatAttackState : CatAIState
+{
+    public override void Enter()
+    {
+        base.Enter();
+        catAI.Animate(CatAI.Animation.Attack);
+
+        Debug.Log("Cat is Attacking!");
+    }
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
+        Debug.DrawLine(catAI.transform.position, catAI.player.transform.position, Color.red);
+
+        if (_stateTime >= catAI.attackDuration)
+        {
             if (catAI.PlayerInsideKillRadius())
             {
-                catAI.ChangeState<CatAttackState>();
-                return;
-            }
-
-            //Don't move if already very close to crow's x position, 
-            //such as when the crow flies directly above
-            if (Mathf.Abs(catAI.deltaToPlayer.x) > xSatisfaction)
-            {
-                catAI.Animate(CatAI.Animation.Run);
-                catAI.Run(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
-            }
+                Debug.Log("CAT KILLED THE CROW!");
+                catAI.Stop();
+                catAI.stateSelector.Idle();
+            } 
             else
             {
-                catAI.Animate(CatAI.Animation.Idle);
-                catAI.Stop();
-            }
-
-            Debug.DrawLine(catAI.transform.position, catAI.player.transform.position, Color.yellow);
-        }
-    }
-
-    public class CatAttackState : CatAIState
-    {
-        public override void Enter()
-        {
-            base.Enter();
-            catAI.Animate(CatAI.Animation.Attack);
-
-            Debug.Log("Cat is Attacking!");
-        }
-
-        public override void StateUpdate()
-        {
-            base.StateUpdate();
-
-            Debug.DrawLine(catAI.transform.position, catAI.player.transform.position, Color.red);
-
-            if (_stateTime >= catAI.attackDuration)
-            {
-                if (catAI.PlayerInsideKillRadius())
-                {
-                    Debug.Log("CAT KILLED THE CROW!");
-                    catAI.Stop();
-                    catAI.ChangeState<CatNoopState>();
-                } 
-                else
-                {
-                    Debug.Log("Cat missed its attack");
-                    catAI.ChangeState<CatChaseState>();
-                }
+                Debug.Log("Cat missed its attack");
+                catAI.stateSelector.Chase();
             }
         }
     }
+}
 
-    public class CatNoopState : CatAIState 
+public class CatNoopState : CatAIState 
+{
+    public override void Enter()
     {
-        public override void Enter()
-        {
-            base.Enter();
-            catAI.Animate(CatAI.Animation.Idle);
-        }
+        base.Enter();
+        catAI.Animate(CatAI.Animation.Idle);
     }
+}

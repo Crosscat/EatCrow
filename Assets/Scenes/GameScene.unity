@@ -1973,7 +1973,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6484591649993012288, guid: db18fc0ddda21db4ea2c6c50dc94bb15, type: 3}
       propertyPath: m_Name
-      value: Cat (2)
+      value: Hunter Cat
+      objectReference: {fileID: 0}
+    - target: {fileID: 6484591649993012302, guid: db18fc0ddda21db4ea2c6c50dc94bb15, type: 3}
+      propertyPath: methodology
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6484591649993012303, guid: db18fc0ddda21db4ea2c6c50dc94bb15, type: 3}
       propertyPath: m_RootOrder

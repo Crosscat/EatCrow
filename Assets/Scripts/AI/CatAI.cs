@@ -68,7 +68,7 @@ public class CatAI : StateMachine
             case Methodology.Hunter: stateSelector = new StateSelector()
             {
                 Idle = () => ChangeState<CatNoopState>(),
-                Passive = () => ChangeState<CatWanderState>(),
+                Passive = () => ChangeState<CatHuntingState>(),
                 Chase = () => ChangeState<CatChaseState>(),
                 Attack = () => ChangeState<CatAttackState>(),
             }; break;
@@ -223,7 +223,7 @@ public class CatWanderState : CatAIState
 
 public class CatChaseState : CatAIState
 {
-    private const float xSatisfaction = .2f;
+    private const float X_SATISFACTION = .2f;
 
     public override void StateUpdate()
     {
@@ -243,7 +243,7 @@ public class CatChaseState : CatAIState
 
         //Don't move if already very close to crow's x position, 
         //such as when the crow flies directly above
-        if (Mathf.Abs(catAI.deltaToPlayer.x) > xSatisfaction)
+        if (Mathf.Abs(catAI.deltaToPlayer.x) > X_SATISFACTION)
         {
             catAI.Animate(CatAI.Animation.Run);
             catAI.Run(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
@@ -287,6 +287,33 @@ public class CatAttackState : CatAIState
                 Debug.Log("Cat missed its attack");
                 catAI.stateSelector.Chase();
             }
+        }
+    }
+}
+
+public class CatHuntingState : CatAIState
+{
+    private const float X_SATISFACTION = .2f;
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
+        if (catAI.PlayerInsideAgroRadius() && catAI.PlayerInsideWalkzoneX())
+        {
+            catAI.stateSelector.Chase();
+            return;
+        }
+
+        if (Mathf.Abs(catAI.deltaToPlayer.x) > X_SATISFACTION && catAI.PlayerInsideWalkzoneX())
+        {
+            catAI.Animate(CatAI.Animation.Run);
+            catAI.Walk(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
+        }
+        else
+        {
+            catAI.Animate(CatAI.Animation.Idle);
+            catAI.Stop();
         }
     }
 }

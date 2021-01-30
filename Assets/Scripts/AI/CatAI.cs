@@ -36,7 +36,7 @@ public class CatAI : StateMachine
         get { return physics.Velocity; }
     }
 
-    private enum Animation
+    public enum Animation
     {
         Idle = 0,
         Walk = 1,
@@ -68,43 +68,43 @@ public class CatAI : StateMachine
         CurrentState = nextState;
     }
 
-    private void Animate(Animation animation)
+    public void Animate(Animation animation)
     {
         animator.SetInteger("State", (int)animation);
     }
 
-    private void Walk(Vector2 direction)
+    public void Walk(Vector2 direction)
     {
         physics.Move(direction, walkSpeed, moveAcceleration);
     }
 
-    private void Run(Vector2 direction)
+    public void Run(Vector2 direction)
     {
         physics.Move(direction, runSpeed, moveAcceleration);
     }
 
-    private void Stop()
+    public void Stop()
     {
         physics.Move(Vector2.one, 0f, moveAcceleration);
     }
 
-    private bool PlayerInsideKillRadius()
+    public bool PlayerInsideKillRadius()
     {
         return sqrDistanceToPlayer < attackRange*attackRange;
     }
 
-    private bool PlayerInsideAgroRadius()
+    public bool PlayerInsideAgroRadius()
     {
         return sqrDistanceToPlayer < agroRange*agroRange;
     }
 
-    private bool PlayerInsideWalkzoneX()
+    public bool PlayerInsideWalkzoneX()
     {
         return walkZone.Rect.xMin < player.transform.position.x 
                                  && player.transform.position.x < walkZone.Rect.xMax;
     }
 
-    private bool PlayerOutsideDeAgroRadius()
+    public bool PlayerOutsideDeAgroRadius()
     {
         return sqrDistanceToPlayer > deAgroRange*deAgroRange;
     }
@@ -129,7 +129,11 @@ public class CatAI : StateMachine
         Gizmos.DrawWireSphere(transform.position, deAgroRange);
     }
 
-    public abstract class CatAIState : State
+    
+
+}
+
+public abstract class CatAIState : State
     {
         public CatAI catAI;
     }
@@ -144,7 +148,7 @@ public class CatAI : StateMachine
         {
             base.Enter();
 
-            catAI.Animate(Animation.Walk);
+            catAI.Animate(CatAI.Animation.Walk);
             SelectTarget();
         }
 
@@ -198,12 +202,12 @@ public class CatAI : StateMachine
             //such as when the crow flies directly above
             if (Mathf.Abs(catAI.deltaToPlayer.x) > xSatisfaction)
             {
-                catAI.Animate(Animation.Run);
+                catAI.Animate(CatAI.Animation.Run);
                 catAI.Run(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
             }
             else
             {
-                catAI.Animate(Animation.Idle);
+                catAI.Animate(CatAI.Animation.Idle);
                 catAI.Stop();
             }
 
@@ -216,7 +220,7 @@ public class CatAI : StateMachine
         public override void Enter()
         {
             base.Enter();
-            catAI.Animate(Animation.Attack);
+            catAI.Animate(CatAI.Animation.Attack);
 
             Debug.Log("Cat is Attacking!");
         }
@@ -249,10 +253,6 @@ public class CatAI : StateMachine
         public override void Enter()
         {
             base.Enter();
-            catAI.Animate(Animation.Idle);
+            catAI.Animate(CatAI.Animation.Idle);
         }
     }
-
-}
-
-

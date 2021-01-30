@@ -7,6 +7,8 @@ public class InputController : MonoBehaviour
     public static event EventHandler JumpPressedEvent;
     public static event EventHandler ActionPressedEvent;
     public static event EventHandler ActionReleasedEvent;
+    public static event EventHandler LiftPressedEvent;
+    public static event EventHandler LiftReleasedEvent;
 
     private static int _xAxis;
     private static int _yAxis;
@@ -36,6 +38,16 @@ public class InputController : MonoBehaviour
         if (Input.GetButtonUp("Action"))
         {
             ActionReleasedEvent?.Invoke(this, null);
+        }
+
+        if (Input.GetButtonDown("Lift"))
+        {
+            LiftPressedEvent?.Invoke(this, null);
+        }
+
+        if (Input.GetButtonUp("Lift"))
+        {
+            LiftReleasedEvent?.Invoke(this, null);
         }
     }
 

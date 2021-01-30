@@ -22,7 +22,18 @@ public class PlayerController : StateMachine
 
     private Physics _physics;
     private FoodTracker _foodTracker;
+    private Animator _animator;
+    private SpriteRenderer _spriteRenderer;
+
     private float _fallThroughTimer;
+
+    private static class ANIMATION
+    {
+        public static int[] IDLE_BY_FATNESS = { 0, 0, 0, 0, 0 };
+        public static int[] FLYING_BY_FATNESS = { 1, 1, 1, 1, 1 };
+        public static int[] WALKING_BY_FATNESS = { 0, 0, 0, 0, 0 };
+        public static int[] EATING_BY_FATNESS = { 0, 0, 0, 0, 0 };
+    }
 
     private float AdjustedHorizontalMoveAcceleration
     {
@@ -34,6 +45,37 @@ public class PlayerController : StateMachine
         get { return JumpPower / (1 + CalorieJumpFactor * CaloriesEaten); }
     }
 
+    private float AdjustedMoveSpeed
+    {
+        get { return MoveSpeed / (1 + CalorieSpeedFactor * CaloriesEaten); }
+    }
+
+    public Vector2 Velocity
+    {
+        get { return _physics.Velocity; }
+    }
+
+    public bool Grounded
+    {
+        get { return _physics.Grounded; }
+    }
+
+    public int FatnessLevel
+    {
+        get 
+        {
+            //TODO apply rule
+            return 0;
+        }
+    }
+
+    public int AnimationSpeed
+    {
+        set
+        {
+            _animator.speed = value;
+        }
+    }
 
 
     private void Awake()
@@ -41,14 +83,19 @@ public class PlayerController : StateMachine
         _physics = GetComponent<Physics>();
         _foodTracker = GetComponent<FoodTracker>();
         _raycastLauncher = GetComponent<RaycastLauncher>();
+        _animator = GetComponent<Animator>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
         _defaultRaycastTargets = _raycastLauncher.RaycastTargets.ToList();
 
-        ChangeState<PlayerIdleState>();
+        ChangeState<PlayerGroundedState>();
     }
 
     public override void Update()
     {
         base.Update();
+
+        if (Velocity.x > 0) _spriteRenderer.flipX = true;
+        else if (Velocity.x < 0) _spriteRenderer.flipX = false;
 
         if (_fallThroughTimer > 0)
         {
@@ -66,18 +113,12 @@ public class PlayerController : StateMachine
 
     public void Move(Vector2 direction)
     {
-        _physics.Move(direction, MoveSpeed, AdjustedHorizontalMoveAcceleration);
+        _physics.Move(direction, AdjustedMoveSpeed, AdjustedHorizontalMoveAcceleration);
     }
 
     public void Jump()
     {
         _physics.ForceJump(AdjustedJumpPower);
-    }
-
-    public bool AllowedToEat()
-    {
-        //TODO add rules
-        return true;
     }
 
     public Food TryFindFood()
@@ -117,9 +158,30 @@ public class PlayerController : StateMachine
         //    _fallThroughTimer = .25f;
         //}
     }
+
+    public void AnimateIdle()
+    {
+        _animator.SetInteger("State", ANIMATION.IDLE_BY_FATNESS[FatnessLevel]);
+    }
+
+    public void AnimateFlying()
+    {
+        _animator.SetInteger("State", ANIMATION.FLYING_BY_FATNESS[FatnessLevel]);
+    }
+
+    public void AnimateWalking()
+    {
+        _animator.SetInteger("State", ANIMATION.WALKING_BY_FATNESS[FatnessLevel]);
+    }
+
+    public void AnimateEating()
+    {
+        _animator.SetInteger("State", ANIMATION.EATING_BY_FATNESS[FatnessLevel]);
+    }
+
 }
 
-public class PlayerState : State
+public abstract class PlayerNormalState : State
 {
     protected PlayerController _player;
 
@@ -146,6 +208,12 @@ public class PlayerState : State
         InputController.JumpPressedEvent -= OnPressJump;
         InputController.ActionPressedEvent -= OnActionPressed;
         InputController.ActionReleasedEvent -= OnActionReleased;
+    }
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
     }
 
     protected virtual void OnPressMove(object sender, InfoEventArgs<Vector2> e)
@@ -175,25 +243,32 @@ public class PlayerState : State
 
     protected virtual void OnDownPress()
     {
-
+        
     }
 }
 
-public class PlayerIdleState : PlayerState
+public class PlayerGroundedState : PlayerNormalState
 {
     public override void Enter()
     {
         base.Enter();
+        _player.AnimateIdle();
+    }
 
-        // change animation
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
+        if (!_player.Grounded)
+        {
+            _player.ChangeState<PlayerFlyingState>();
+        }
     }
 
     protected override void OnActionPressed(object sender, EventArgs e)
     {
-        base.OnActionPressed(sender, e);
-
         Food foodToEat = _player.TryFindFood();
-        if (_player.AllowedToEat() && foodToEat != null)
+        if (foodToEat != null)
         {
             _player.ChangeState<PlayerEatingState>();
         }
@@ -201,13 +276,86 @@ public class PlayerIdleState : PlayerState
 
     protected override void OnDownPress()
     {
-        base.OnDownPress();
-
         _player.DropThroughOneWayObstacle();
+    }
+
+    protected override void OnPressJump(object sender, EventArgs e)
+    {
+        base.OnPressJump(sender, e);
+        _player.ChangeState<PlayerFastFlyingState>();
     }
 }
 
-public class PlayerEatingState : PlayerState
+public class PlayerFlyingState : PlayerNormalState
+{
+    public override void Enter()
+    {
+        base.Enter();
+        _player.AnimateFlying();
+    }
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
+        if (_player.Grounded)
+        {
+            _player.ChangeState<PlayerGroundedState>();
+        }
+    }
+
+    protected override void OnPressJump(object sender, EventArgs e)
+    {
+        base.OnPressJump(sender, e);
+        _player.ChangeState<PlayerFastFlyingState>();
+    }
+}
+
+public class PlayerFastFlyingState : PlayerFlyingState
+{
+    private const float fastFlyDuration = .5f;
+
+    private float fastFlyTimer;
+
+    public override void Enter()
+    {
+        base.Enter();
+
+        fastFlyTimer = 0;
+        _player.AnimationSpeed = 2;
+    }
+
+    public override void Exit()
+    {
+        _player.AnimationSpeed = 1;
+        base.Exit();
+    }
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+
+        fastFlyTimer += Time.deltaTime;
+        if (fastFlyTimer >= fastFlyDuration)
+        {
+            _player.ChangeState<PlayerFlyingState>();
+        }
+    }
+
+    protected override void OnPressJump(object sender, EventArgs e)
+    {
+        base.OnPressJump(sender, e);
+        
+        fastFlyTimer = 0;
+    }
+}
+
+public class PlayerWalkingState : PlayerGroundedState
+{
+    //TODO
+}
+
+public class PlayerEatingState : PlayerGroundedState
 {
     public override void Enter()
     {
@@ -229,9 +377,9 @@ public class PlayerEatingState : PlayerState
         base.StateUpdate();
 
         Food foodToEat = _player.TryFindFood();
-        if (!_player.AllowedToEat() || foodToEat == null)
+        if (foodToEat == null)
         {
-            _player.ChangeState<PlayerIdleState>();
+            _player.ChangeState<PlayerGroundedState>();
             return;
         }
 
@@ -243,6 +391,21 @@ public class PlayerEatingState : PlayerState
     {
         base.OnActionReleased(sender, e);
 
-        _player.ChangeState<PlayerIdleState>();
+        _player.ChangeState<PlayerGroundedState>();
+    }
+
+    protected override void OnPressJump(object sender, EventArgs e)
+    {
+        //Disable while eating
+    }
+
+    protected override void OnPressMove(object sender, InfoEventArgs<Vector2> e)
+    {
+        //Disable while eating
+    }
+
+    protected override void OnDownPress()
+    {
+        //Disable while eating
     }
 }

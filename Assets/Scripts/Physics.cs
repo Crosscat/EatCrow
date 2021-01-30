@@ -62,7 +62,7 @@ public class Physics : MonoBehaviour
 
     public void ForceJump(float power)
     {
-        Velocity.y = power;
+        Velocity.y = Mathf.Min(Velocity.y + power, power);
         Grounded = false;
         Falling = false;
     }

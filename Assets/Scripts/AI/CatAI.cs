@@ -18,6 +18,9 @@ public class CatAI : StateMachine
     public AIZone walkZone { get; private set; }
     public PlayerController player { get; private set; }
 
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
+
     public Vector2 deltaToPlayer
     {
         get { return player.transform.position - transform.position; }
@@ -28,10 +31,25 @@ public class CatAI : StateMachine
         get { return deltaToPlayer.sqrMagnitude; }
     }
 
+    public Vector2 Velocity
+    {
+        get { return physics.Velocity; }
+    }
+
+    private enum Animation
+    {
+        Idle = 0,
+        Walk = 1,
+        Run = 1,
+        Attack = 1,
+    }
+
     private void Start()
     {
         player = GameObject.FindObjectOfType<PlayerController>();
         physics = GetComponent<Physics>();
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
 
         //TODO: set this properly
         //Currently just picks the closest zone
@@ -48,6 +66,11 @@ public class CatAI : StateMachine
         CatAIState nextState = GetState<T>();
         nextState.catAI = this;
         CurrentState = nextState;
+    }
+
+    private void Animate(Animation animation)
+    {
+        animator.SetInteger("State", (int)animation);
     }
 
     private void Walk(Vector2 direction)
@@ -85,7 +108,15 @@ public class CatAI : StateMachine
     {
         return sqrDistanceToPlayer > deAgroRange*deAgroRange;
     }
-    
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (Velocity.x > 0) spriteRenderer.flipX = true;
+        else if (Velocity.x < 0) spriteRenderer.flipX = false;
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
@@ -113,6 +144,7 @@ public class CatAI : StateMachine
         {
             base.Enter();
 
+            catAI.Animate(Animation.Walk);
             SelectTarget();
         }
 
@@ -166,10 +198,12 @@ public class CatAI : StateMachine
             //such as when the crow flies directly above
             if (Mathf.Abs(catAI.deltaToPlayer.x) > xSatisfaction)
             {
+                catAI.Animate(Animation.Run);
                 catAI.Run(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
             }
             else
             {
+                catAI.Animate(Animation.Idle);
                 catAI.Stop();
             }
 
@@ -182,6 +216,7 @@ public class CatAI : StateMachine
         public override void Enter()
         {
             base.Enter();
+            catAI.Animate(Animation.Attack);
 
             Debug.Log("Cat is Attacking!");
         }
@@ -209,7 +244,14 @@ public class CatAI : StateMachine
         }
     }
 
-    public class CatNoopState : CatAIState { }
+    public class CatNoopState : CatAIState 
+    {
+        public override void Enter()
+        {
+            base.Enter();
+            catAI.Animate(Animation.Idle);
+        }
+    }
 
 }
 

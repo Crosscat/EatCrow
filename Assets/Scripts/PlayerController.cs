@@ -140,7 +140,7 @@ public class PlayerController : StateMachine
         if (!target.IgnoredDirections.Contains(Vector2.down))
         {
             target.IgnoredDirections.Add(Vector2.down);
-            _fallThroughTimer = .25f;
+            _fallThroughTimer = .5f;
         }
 
         //if (_raycastLauncher.RaycastTargets.Count == 2)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-[RequireComponent(typeof(Rigidbody2D))]
 public abstract class TriggerTracker<T> : MonoBehaviour where T:MonoBehaviour
 {
     public readonly List<T> triggered = new List<T>();

@@ -44,6 +44,9 @@ TagManager:
   - name: Background
     uniqueID: 2092099723
     locked: 0
+  - name: Midground
+    uniqueID: 124864135
+    locked: 0
   - name: Collectable
     uniqueID: 831819013
     locked: 0
@@ -52,4 +55,7 @@ TagManager:
     locked: 0
   - name: WallsFloors
     uniqueID: 251644913
+    locked: 0
+  - name: NonPlayerActor
+    uniqueID: 1933538043
     locked: 0

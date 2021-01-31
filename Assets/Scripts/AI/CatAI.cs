@@ -52,8 +52,8 @@ public class CatAI : AIAgent
     {
         Idle = 0,
         Walk = 1,
+        Attack = 2,
         Run = 1,
-        Attack = 1,
     }
 
     public override void Awake()
@@ -285,6 +285,7 @@ public class CatAttackState : CatAIState
     {
         base.StateUpdate();
 
+        catAI.Stop();
         Debug.DrawLine(catAI.transform.position, catAI.player.transform.position, Color.red);
 
         if (_stateTime >= catAI.attackDuration)

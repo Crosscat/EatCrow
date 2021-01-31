@@ -50,8 +50,12 @@ public class PathWeb : MonoBehaviour
         PathSegment startSegment = ClosestSegment(from);
         PathSegment endSegment = ClosestSegment(to);
 
-        if (startSegment == endSegment) return new List<Vector2>() { to };
-
+        if (startSegment == endSegment
+            || startSegment == null
+            || endSegment == null)
+        {
+            return new List<Vector2>() { to };
+        }
         //Simple brute force search
         Dictionary<PathNode, NodeDetail> nodeDetails = new Dictionary<PathNode, NodeDetail>();
 

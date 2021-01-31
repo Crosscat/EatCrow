@@ -4,8 +4,29 @@ using UnityEngine;
 
 public class Game : StateMachine
 {
-    public class MainGameState : State
+    public List<CatAI> cats;
+
+    public static Game Current { get; private set; }
+
+
+    private void Awake()
+    {
+        Current = this;
+    }
+
+    private void Start()
+    {
+        
+    }
+
+    private void InitializeGame()
     {
 
     }
+
+}
+
+public class MainGameState : State
+{
+
 }

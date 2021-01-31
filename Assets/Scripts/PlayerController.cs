@@ -101,7 +101,7 @@ public class PlayerController : Entity
         public static int[] IDLE_BY_FATNESS = { 0, 3, 5 };
         public static int[] FLYING_BY_FATNESS = { 1, 2, 4 };
         public static int[] WALKING_BY_FATNESS = { 0, 3, 5 };
-        public static int[] EATING_BY_FATNESS = { 0, 3, 5 };
+        public static int[] EATING_BY_FATNESS = { 6, 7, 8 };
     }
 
     private float AdjustedHorizontalMoveAcceleration
@@ -404,7 +404,7 @@ public class PlayerEatingState : PlayerGroundedState
     public override void Enter()
     {
         base.Enter();
-        // change animation
+        _player.AnimateEating();
 
         Debug.Log("Nomming...");
     }

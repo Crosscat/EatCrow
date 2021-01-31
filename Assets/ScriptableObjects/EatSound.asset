@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EatSound
   m_EditorClassIdentifier: 
   Sounds: 050000000600000007000000
-  MinVolume: 1
-  MaxVolume: 1
+  MinVolume: 2
+  MaxVolume: 2
   MinPitch: 1
   MaxPitch: 1

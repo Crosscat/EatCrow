@@ -27,7 +27,7 @@ public class Liftable : MonoBehaviour
     {
         if (LiftTarget == null || Lifted) return;
 
-        Utilities.Instance.SpritePop(LiftTarget.GetComponent<SpriteRenderer>(), Color.green);
+        Utilities.Instance.SpritePop(LiftTarget.GetComponent<SpriteRenderer>(), Color.white);
 
         Lifted = true;
         LiftTarget.transform.SetParent(lifter.transform, true);

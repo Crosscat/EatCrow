@@ -2455,6 +2455,60 @@ Transform:
   m_Father: {fileID: 807223738}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1303336325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1303336327}
+  - component: {fileID: 1303336326}
+  m_Layer: 0
+  m_Name: AudioController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1303336326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303336325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d074207f6b5053647854e9768ffe1ac9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SoundEffects: []
+  Music:
+  - name: 1
+    sound: {fileID: 8300000, guid: 223d12b3db98a0b4387e427cbeeaccd4, type: 3}
+    defaultVolume: 0.1
+  - name: 2
+    sound: {fileID: 8300000, guid: 08218fccb56fff34fbbee5f3b559eeb5, type: 3}
+    defaultVolume: 0.1
+  - name: 3
+    sound: {fileID: 8300000, guid: ada1b71b5a3e29841bdc01cc90bcd8e5, type: 3}
+    defaultVolume: 0.1
+--- !u!4 &1303336327
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303336325}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 27
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1339790403
 PrefabInstance:
   m_ObjectHideFlags: 0

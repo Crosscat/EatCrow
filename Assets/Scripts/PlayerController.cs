@@ -63,10 +63,10 @@ public class PlayerController : Entity
 
     private static class ANIMATION
     {
-        public static int[] IDLE_BY_FATNESS = { 0, 0, 0, 0, 0 };
-        public static int[] FLYING_BY_FATNESS = { 1, 1, 1, 1, 1 };
-        public static int[] WALKING_BY_FATNESS = { 0, 0, 0, 0, 0 };
-        public static int[] EATING_BY_FATNESS = { 0, 0, 0, 0, 0 };
+        public static int[] IDLE_BY_FATNESS = { 0, 3, 5 };
+        public static int[] FLYING_BY_FATNESS = { 1, 2, 4 };
+        public static int[] WALKING_BY_FATNESS = { 0, 3, 5 };
+        public static int[] EATING_BY_FATNESS = { 0, 3, 5 };
     }
 
     private float AdjustedHorizontalMoveAcceleration

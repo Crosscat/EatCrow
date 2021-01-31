@@ -53,7 +53,7 @@ public class CatAI : AIAgent
         Idle = 0,
         Walk = 1,
         Attack = 2,
-        Run = 1,
+        Run = 3,
     }
 
     public override void Awake()

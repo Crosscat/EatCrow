@@ -20,7 +20,7 @@ public class PlayerController : StateMachine
     private RaycastLauncher _raycastLauncher;
     private List<RaycastTarget> _defaultRaycastTargets;
 
-    private Physics _physics;
+    public Physics Physics;
     private FoodTracker _foodTracker;
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
@@ -52,12 +52,12 @@ public class PlayerController : StateMachine
 
     public Vector2 Velocity
     {
-        get { return _physics.Velocity; }
+        get { return Physics.Velocity; }
     }
 
     public bool Grounded
     {
-        get { return _physics.Grounded; }
+        get { return Physics.Grounded; }
     }
 
     public int FatnessLevel
@@ -80,7 +80,7 @@ public class PlayerController : StateMachine
 
     private void Awake()
     {
-        _physics = GetComponent<Physics>();
+        Physics = GetComponent<Physics>();
         _foodTracker = GetComponent<FoodTracker>();
         _raycastLauncher = GetComponent<RaycastLauncher>();
         _animator = GetComponent<Animator>();
@@ -113,12 +113,12 @@ public class PlayerController : StateMachine
 
     public void Move(Vector2 direction)
     {
-        _physics.Move(direction, AdjustedMoveSpeed, AdjustedHorizontalMoveAcceleration);
+        Physics.Move(direction, AdjustedMoveSpeed, AdjustedHorizontalMoveAcceleration);
     }
 
     public void Jump()
     {
-        _physics.ForceJump(AdjustedJumpPower);
+        Physics.ForceJump(AdjustedJumpPower);
     }
 
     public Food TryFindFood()
@@ -142,21 +142,6 @@ public class PlayerController : StateMachine
             target.IgnoredDirections.Add(Vector2.down);
             _fallThroughTimer = .5f;
         }
-
-        //if (_raycastLauncher.RaycastTargets.Count == 2)
-        //{
-        //    var target = _raycastLauncher.RaycastTargets.First(x => x.IgnoredDirections.Count != 0);
-        //    var replacement = new RaycastTarget
-        //    {
-        //        IgnoredDirections = target.IgnoredDirections.ToList(),
-        //        Mask = target.Mask,
-        //    };
-        //    replacement.IgnoredDirections.Add(Vector2.down);
-
-        //    _raycastLauncher.RaycastTargets.Remove(replacement);
-        //    _raycastLauncher.RaycastTargets.Add(replacement);
-        //    _fallThroughTimer = .25f;
-        //}
     }
 
     public void AnimateIdle()
@@ -198,6 +183,8 @@ public abstract class PlayerNormalState : State
         InputController.JumpPressedEvent += OnPressJump;
         InputController.ActionPressedEvent += OnActionPressed;
         InputController.ActionReleasedEvent += OnActionReleased;
+        InputController.LiftPressedEvent += OnLift;
+        InputController.LiftReleasedEvent += OnDrop;
     }
 
     protected override void RemoveListeners()
@@ -208,6 +195,8 @@ public abstract class PlayerNormalState : State
         InputController.JumpPressedEvent -= OnPressJump;
         InputController.ActionPressedEvent -= OnActionPressed;
         InputController.ActionReleasedEvent -= OnActionReleased;
+        InputController.LiftPressedEvent -= OnLift;
+        InputController.LiftReleasedEvent -= OnDrop;
     }
 
     public override void StateUpdate()
@@ -244,6 +233,16 @@ public abstract class PlayerNormalState : State
     protected virtual void OnDownPress()
     {
         
+    }
+
+    protected virtual void OnLift(object sender, EventArgs e)
+    {
+        Liftable.Lift(_player.Physics);
+    }
+
+    protected virtual void OnDrop(object sender, EventArgs e)
+    {
+        Liftable.Drop(_player.Physics);
     }
 }
 
@@ -298,7 +297,7 @@ public class PlayerFlyingState : PlayerNormalState
     {
         base.StateUpdate();
 
-        if (_player.Grounded)
+        if (_player.Grounded && !Liftable.Lifted)
         {
             _player.ChangeState<PlayerGroundedState>();
         }

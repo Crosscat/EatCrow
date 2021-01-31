@@ -9,7 +9,7 @@ public class Physics : MonoBehaviour
 
     public static float JumpLeniency = .05f;
 
-    private float _gravity = .2f;
+    public float Gravity = .4f;
     private const float _maxFall = 10;
     private const float _margin = .025f;
     private float _angleLeeway = 30;
@@ -26,16 +26,14 @@ public class Physics : MonoBehaviour
     private float _targetSpeedY;
     private float _acceleration;
     private bool _onASlope = false;
-    public RaycastLauncher RaycastLauncher { get; set; }
+    public List<RaycastLauncher> RaycastLaunchers { get; set; }
     private float _fallTime;
 
-    public Collider2D Collider { get; set; }
     public Collider2D WallExitCollider { get; set; }
 
     private void Awake()
     {
-        RaycastLauncher = GetComponent<RaycastLauncher>();
-        Collider = RaycastLauncher.Collider;
+        RaycastLaunchers = GetComponents<RaycastLauncher>().ToList();
     }
 
     public bool CanJump()
@@ -95,7 +93,7 @@ public class Physics : MonoBehaviour
         // apply gravity if airborne
         if (!Grounded && HasGravity)
         {
-            Velocity.y = Mathf.Max(Velocity.y - _gravity, -_maxFall);
+            Velocity.y = Mathf.Max(Velocity.y - Gravity, -_maxFall);
         }
 
         if (Velocity.y < 0)
@@ -105,52 +103,55 @@ public class Physics : MonoBehaviour
 
         if (DisableCollisions) return;
 
-        float rayDistance = Collider.bounds.extents.y + (Grounded ? .1f : Mathf.Abs(Velocity.y * Time.deltaTime));
-
-        if (Grounded || Falling)
+        foreach (var raycastLauncher in RaycastLaunchers)
         {
-            // check for collision with ground
-            float hitDistance = Colliding(Vector2.down, rayDistance);
-            if (hitDistance > 0)
+            var rayDistance = raycastLauncher.Collider.bounds.extents.y + (Grounded ? .1f : Mathf.Abs(Velocity.y * Time.deltaTime));
+
+            if (Grounded || Falling)
             {
-                Grounded = true;
-                Falling = false;
-                Velocity.y = 0;
-
-                var (hit, _) = CollidingWithSlope(Vector2.down, .4f);
-                _onASlope = hit > 0;
-                if (_onASlope)
+                // check for collision with ground
+                var hitDistance = Colliding(raycastLauncher, Vector2.down, rayDistance);
+                if (hitDistance > 0)
                 {
-                    // if on a steep slope, instead of aligning with ground, get pushed downwards
-                    transform.Translate(Vector2.down * .05f);
+                    Grounded = true;
+                    Falling = false;
+                    Velocity.y = 0;
 
-                    // if inside slope after being pushed down, get pushed outwards
-                    CheckHorizontalSlopes(Vector2.left);
-                    CheckHorizontalSlopes(Vector2.right);
+                    var (hit, _) = CollidingWithSlope(raycastLauncher, Vector2.down, .4f);
+                    _onASlope = hit > 0;
+                    if (_onASlope)
+                    {
+                        // if on a steep slope, instead of aligning with ground, get pushed downwards
+                        transform.Translate(Vector2.down * .05f);
+
+                        // if inside slope after being pushed down, get pushed outwards
+                        CheckHorizontalSlopes(Vector2.left);
+                        CheckHorizontalSlopes(Vector2.right);
+                    }
+                    else
+                    {
+                        // if not on steep slope, align with ground
+                        transform.Translate(Vector2.down * (hitDistance - raycastLauncher.Collider.bounds.extents.y));
+                    }
                 }
                 else
                 {
-                    // if not on steep slope, align with ground
-                    transform.Translate(Vector2.down * (hitDistance - Collider.bounds.extents.y));
+                    if (Grounded)
+                    {
+                        _fallTime = 0;
+                    }
+                    Grounded = false;
                 }
             }
             else
             {
-                if (Grounded)
+                // check for collision with ceiling
+                var hitDistance = Colliding(raycastLauncher, Vector2.up, rayDistance);
+                if (hitDistance > 0)
                 {
-                    _fallTime = 0;
+                    transform.Translate(Vector2.up * (hitDistance - raycastLauncher.Collider.bounds.extents.y));
+                    Velocity.y = 0;
                 }
-                Grounded = false;
-            }
-        }
-        else
-        {
-            // check for collision with ceiling
-            float hitDistance = Colliding(Vector2.up, rayDistance);
-            if (hitDistance > 0)
-            {
-                transform.Translate(Vector2.up * (hitDistance - Collider.bounds.extents.y));
-                Velocity.y = 0;
             }
         }
     }
@@ -183,17 +184,17 @@ public class Physics : MonoBehaviour
         }
     }
 
-    private float Colliding(Vector2 direction, float rayDistance)
+    private float Colliding(RaycastLauncher launcher, Vector2 direction, float rayDistance)
     {
-        var hits = RaycastLauncher.GetHitData(direction, rayDistance, _margin).Where(x => x.distance > 0).ToList();
+        var hits = launcher.GetHitData(direction, rayDistance, _margin).Where(x => x.distance > 0).ToList();
 
         if (hits.Count == 0) return 0;
         return hits.Min(x => x.distance);
     }
 
-    private (float, float) CollidingWithSlope(Vector2 direction, float rayDistance)
+    private (float, float) CollidingWithSlope(RaycastLauncher launcher, Vector2 direction, float rayDistance)
     {
-        var hits = RaycastLauncher.GetHitData(direction, rayDistance, _margin).Where(x => x.distance > 0).ToList();
+        var hits = launcher.GetHitData(direction, rayDistance, _margin).Where(x => x.distance > 0).ToList();
         if (hits.Count == 0) return (0, 0);
 
         var minDist = hits.Min(x => x.distance);
@@ -224,18 +225,21 @@ public class Physics : MonoBehaviour
     {
         if (velocity.x != 0)
         {
-            var tooSlow = Mathf.Abs(velocity.x) < 1f;
-            var rayDistanceX = tooSlow ? .1f : Mathf.Abs(velocity.x * Time.deltaTime);
-            rayDistanceX += Collider.bounds.extents.x;
-            var (hitDistanceX, angle) = CollidingWithSlope(new Vector2(velocity.x, 0), rayDistanceX);
-            if (hitDistanceX > 0)
+            foreach (var raycastLauncher in RaycastLaunchers)
             {
-                if (!tooSlow && angle != 90)
+                var tooSlow = Mathf.Abs(velocity.x) < 1f;
+                var rayDistanceX = tooSlow ? .1f : Mathf.Abs(velocity.x * Time.deltaTime);
+                rayDistanceX += raycastLauncher.Collider.bounds.extents.x;
+                var (hitDistanceX, angle) = CollidingWithSlope(raycastLauncher, new Vector2(velocity.x, 0), rayDistanceX);
+                if (hitDistanceX > 0)
                 {
-                    float moveDistance = Mathf.Sign(velocity.x) * (hitDistanceX - Collider.bounds.extents.x);
-                    transform.Translate(moveDistance, 0, 0);
+                    if (!tooSlow && angle != 90)
+                    {
+                        float moveDistance = Mathf.Sign(velocity.x) * (hitDistanceX - raycastLauncher.Collider.bounds.extents.x);
+                        transform.Translate(moveDistance, 0, 0);
+                    }
+                    Velocity.x = 0;
                 }
-                Velocity.x = 0;
             }
         }
 
@@ -244,22 +248,42 @@ public class Physics : MonoBehaviour
 
     public void PushOutOfWalls()
     {
-        if (WallExitCollider == null) WallExitCollider = Collider;
+        //if (WallExitCollider == null) WallExitCollider = Collider;
 
-        var (hitDistanceX1, angleX1) = CollidingWithSlope(Vector2.right, WallExitCollider.bounds.extents.x + .01f);
+        //var (hitDistanceX1, angleX1) = CollidingWithSlope(Vector2.right, WallExitCollider.bounds.extents.x + .01f);
 
-        if (hitDistanceX1 != 0 && angleX1 == 90)
-        {
-            float moveDistance = hitDistanceX1 - WallExitCollider.bounds.extents.x;
-            transform.Translate(moveDistance - .02f, 0, 0);
-        }
+        //if (hitDistanceX1 != 0 && angleX1 == 90)
+        //{
+        //    float moveDistance = hitDistanceX1 - WallExitCollider.bounds.extents.x;
+        //    transform.Translate(moveDistance - .02f, 0, 0);
+        //}
 
-        var (hitDistanceX2, angleX2) = CollidingWithSlope(Vector2.left, WallExitCollider.bounds.extents.x + .01f);
+        //var (hitDistanceX2, angleX2) = CollidingWithSlope(Vector2.left, WallExitCollider.bounds.extents.x + .01f);
 
-        if (hitDistanceX2 != 0 && angleX2 == 90)
-        {
-            float moveDistance = -hitDistanceX2 + WallExitCollider.bounds.extents.x;
-            transform.Translate(moveDistance + .02f, 0, 0);
-        }
+        //if (hitDistanceX2 != 0 && angleX2 == 90)
+        //{
+        //    float moveDistance = -hitDistanceX2 + WallExitCollider.bounds.extents.x;
+        //    transform.Translate(moveDistance + .02f, 0, 0);
+        //}
+    }
+
+    private Dictionary<Physics, List<RaycastLauncher>> _connectedPhysics = new Dictionary<Physics, List<RaycastLauncher>>();
+
+    public void CombinePhysics(Physics other)
+    {
+        if (_connectedPhysics.ContainsKey(other)) return;
+
+        _connectedPhysics.Add(other, other.RaycastLaunchers);
+        other.enabled = false;
+        RaycastLaunchers.AddRange(other.RaycastLaunchers);
+    }
+
+    public void DisconnectPhysics(Physics other)
+    {
+        if (!_connectedPhysics.ContainsKey(other)) return;
+
+        _connectedPhysics.Remove(other);
+        other.enabled = true;
+        RaycastLaunchers.RemoveAll(x => other.RaycastLaunchers.Contains(x));
     }
 }

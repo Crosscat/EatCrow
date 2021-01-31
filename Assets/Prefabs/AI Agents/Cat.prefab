@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &6484591649993012288
+--- !u!1 &3197024780359442690
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,42 +8,37 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6484591649993012303}
-  - component: {fileID: 6484591649993012300}
-  - component: {fileID: 6484591649993012301}
-  - component: {fileID: 6484591649993012290}
-  - component: {fileID: 6484591649993012291}
-  - component: {fileID: 6484591649993012297}
-  - component: {fileID: 6484591649993012302}
-  - component: {fileID: 143865844}
+  - component: {fileID: 3981756139489245612}
+  - component: {fileID: 1261603827318669448}
+  - component: {fileID: 343013782826214637}
   m_Layer: 9
-  m_Name: Cat
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6484591649993012303
+--- !u!4 &3981756139489245612
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6484591649993012288}
+  m_GameObject: {fileID: 3197024780359442690}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.16, y: 0.85, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 6484591649993012303}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6484591649993012300
+--- !u!212 &1261603827318669448
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6484591649993012288}
+  m_GameObject: {fileID: 3197024780359442690}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -88,6 +83,61 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &343013782826214637
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3197024780359442690}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 30634190627d45145a921470561979ab, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!1 &6484591649993012288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6484591649993012303}
+  - component: {fileID: 6484591649993012301}
+  - component: {fileID: 6484591649993012290}
+  - component: {fileID: 6484591649993012291}
+  - component: {fileID: 6484591649993012297}
+  - component: {fileID: 6484591649993012302}
+  m_Layer: 9
+  m_Name: Cat
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6484591649993012303
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6484591649993012288}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.16, y: 0.85, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 3981756139489245612}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &6484591649993012301
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -153,6 +203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec854a11b26a7c146b69e3c7d4c9a2eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Gravity: 0.4
   Velocity: {x: 0, y: 0}
   HasGravity: 1
   DisableCollisions: 0
@@ -184,6 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e114f75592f8a944aa025cb30c71b9a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Physics: {fileID: 0}
   pathWeb: {fileID: 0}
   methodology: 1
   walkSpeed: 3
@@ -194,22 +246,3 @@ MonoBehaviour:
   deAgroRange: 9
   attackRange: 1.36
   attackDuration: 0.3
---- !u!95 &143865844
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6484591649993012288}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 30634190627d45145a921470561979ab, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0

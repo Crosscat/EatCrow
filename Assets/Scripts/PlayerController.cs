@@ -6,13 +6,21 @@ using System.Linq;
 public class Entity : StateMachine
 {
     public Physics Physics;
-    private RaycastLauncher _raycastLauncher;
+    public Vector2 Velocity => Physics.Velocity;
+
+    protected RaycastLauncher _raycastLauncher;
+    protected SpriteRenderer _sprite;
+    protected Animator _animator;
 
     private float _fallThroughTimer;
+    protected float _targetXScale = 1;
 
     public virtual void Awake()
     {
         _raycastLauncher = GetComponent<RaycastLauncher>();
+        _sprite = GetComponentInChildren<SpriteRenderer>();
+        _animator = GetComponentInChildren<Animator>();
+        Physics = GetComponent<Physics>();
     }
 
     public override void Update()
@@ -31,6 +39,31 @@ public class Entity : StateMachine
                 }
             }
         }
+
+        FaceTarget();
+    }
+
+    protected void FaceTarget()
+    {
+        var scale = _sprite.transform.localScale;
+        if (_targetXScale == scale.x) return;
+
+        scale.x += _targetXScale * Time.deltaTime * 12;
+        if ((_targetXScale == 1 && scale.x > _targetXScale) ||
+            (_targetXScale == -1 && scale.x < _targetXScale))
+        {
+            scale.x = _targetXScale;
+        }
+
+        _sprite.transform.localScale = scale;
+    }
+
+    public void Move(Vector2 direction, float speed, float acceleration)
+    {
+        Physics.Move(direction, speed, acceleration);
+
+        if (direction.x > 0) _targetXScale = -1;
+        else if (direction.x < 0) _targetXScale = 1;
     }
 
     public void DropThroughOneWayObstacle()
@@ -58,8 +91,6 @@ public class PlayerController : Entity
     public float CaloriesEaten = 0;
 
     private FoodTracker _foodTracker;
-    private Animator _animator;
-    private SpriteRenderer _spriteRenderer;
 
     private static class ANIMATION
     {
@@ -82,11 +113,6 @@ public class PlayerController : Entity
     private float AdjustedMoveSpeed
     {
         get { return MoveSpeed / (1 + CalorieSpeedFactor * CaloriesEaten); }
-    }
-
-    public Vector2 Velocity
-    {
-        get { return Physics.Velocity; }
     }
 
     public bool Grounded
@@ -117,8 +143,6 @@ public class PlayerController : Entity
 
         Physics = GetComponent<Physics>();
         _foodTracker = GetComponent<FoodTracker>();
-        _animator = GetComponent<Animator>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
 
         ChangeState<PlayerGroundedState>();
     }
@@ -126,14 +150,11 @@ public class PlayerController : Entity
     public override void Update()
     {
         base.Update();
-
-        if (Velocity.x > 0) _spriteRenderer.flipX = true;
-        else if (Velocity.x < 0) _spriteRenderer.flipX = false;
     }
 
     public void Move(Vector2 direction)
     {
-        Physics.Move(direction, AdjustedMoveSpeed, AdjustedHorizontalMoveAcceleration);
+        Move(direction, AdjustedMoveSpeed, AdjustedHorizontalMoveAcceleration);
     }
 
     public void Jump()

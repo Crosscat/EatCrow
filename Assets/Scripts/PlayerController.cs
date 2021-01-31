@@ -66,13 +66,18 @@ public class Entity : StateMachine
         else if (direction.x < 0) _targetXScale = 1;
     }
 
+    public void Stop()
+    {
+        Move(Vector2.one, 0f, 100);
+    }
+
     public void DropThroughOneWayObstacle()
     {
         var target = _raycastLauncher.RaycastTargets[1];
         if (!target.IgnoredDirections.Contains(Vector2.down))
         {
             target.IgnoredDirections.Add(Vector2.down);
-            _fallThroughTimer = .5f;
+            _fallThroughTimer = .4f;
         }
     }
 }
@@ -179,6 +184,7 @@ public class PlayerController : Entity
     {
         CaloriesEaten += calories;
         RefreshAnimation();
+        RefreshAudio();
     }
 
     public void AnimateIdle()
@@ -203,6 +209,11 @@ public class PlayerController : Entity
     {
         currentAnimation = ANIMATION.EATING_BY_FATNESS;
         RefreshAnimation();
+    }
+
+    private void RefreshAudio()
+    {
+        AudioController.Instance.SetVolume(FatnessLevel, .2f);
     }
 
     private void RefreshAnimation()
@@ -453,6 +464,8 @@ public class PlayerEatingState : PlayerGroundedState
             _player.ChangeState<PlayerIdleState>();
             return;
         }
+
+        _player.Stop();
 
         float calories = foodToEat.eat(Time.deltaTime * _player.EatingSpeed);
         _player.ConsumeCalories(calories);

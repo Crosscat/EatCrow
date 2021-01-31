@@ -16,9 +16,9 @@ public class FloorTiler : MonoBehaviour
 
         GameObject group = new GameObject();
 
-        for (float x = rect.xMin + Spacing; x <= rect.xMax - Spacing; x += Spacing)
+        for (float x = rect.xMin + Spacing/2; x <= rect.xMax - Spacing/2; x += Spacing)
         {
-            for (float y = rect.yMin + Spacing; y <= rect.yMax - Spacing; y += Spacing)
+            for (float y = rect.yMin + Spacing/2; y <= rect.yMax - Spacing/2; y += Spacing)
             {
                 GameObject tile = GameObject.Instantiate
                 (

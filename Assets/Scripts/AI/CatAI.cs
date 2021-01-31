@@ -21,7 +21,7 @@ public class CatAI : AIAgent
     public PlayerController player { get; private set; }
     public StateSelector stateSelector { get; private set; }
 
-    public const float TARGET_SATISFACTION = .2f;
+    public const float TARGET_SATISFACTION = .4f;
     public  const float TARGET_SATISFACTION_SQR = TARGET_SATISFACTION * TARGET_SATISFACTION;
 
     public Vector2 deltaToPlayer
@@ -134,16 +134,11 @@ public class CatAI : AIAgent
         }
 
         if (physics.Grounded
-            && xDist < 1f
-            && yDelta < 2)
+            //&& xDist < 1f
+            && yDelta < -1)
         {
             DropThroughOneWayObstacle();
         }
-    }
-
-    public void Stop()
-    {
-        Move(Vector2.one, 0f, moveAcceleration);
     }
 
     public bool PlayerInsideKillRadius()

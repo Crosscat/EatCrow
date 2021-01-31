@@ -3887,6 +3887,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerCrow
       objectReference: {fileID: 0}
+    - target: {fileID: 8162879923033870332, guid: 169d5c46af08e3e4f962c7e4cb7f3799, type: 3}
+      propertyPath: MinPitch
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8162879923033870332, guid: 169d5c46af08e3e4f962c7e4cb7f3799, type: 3}
+      propertyPath: MaxVolume
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8162879923033870332, guid: 169d5c46af08e3e4f962c7e4cb7f3799, type: 3}
+      propertyPath: MinVolume
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8162879923033870332, guid: 169d5c46af08e3e4f962c7e4cb7f3799, type: 3}
+      propertyPath: Sounds.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8162879923033870332, guid: 169d5c46af08e3e4f962c7e4cb7f3799, type: 3}
+      propertyPath: Sounds.Array.data[0]
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 169d5c46af08e3e4f962c7e4cb7f3799, type: 3}
 --- !u!1001 &3684651678212727109

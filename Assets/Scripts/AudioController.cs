@@ -162,7 +162,10 @@ public enum SoundEnum
     WingFlap = 2,
     Meow = 3,
     CatAttack = 4,
-    Eat = 5,
+    Eat1 = 5,
+    Eat2 = 6,
+    Eat3 = 7,
+    Death = 8,
 }
 
 public enum MusicEnum

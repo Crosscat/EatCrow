@@ -1,11 +1,13 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class PlaySound : MonoBehaviour
 {
-    public SoundEnum Sound;
-
-    public void Play()
+    public void Play(Soundy soundy)
     {
-        AudioController.Instance.PlaySound(Sound, false, Random.Range(.8f, 1.2f), Random.Range(.5f, 1f));
+        var randomSoundIndex = Random.Range(0, soundy.Sounds.Count);
+        var sound = soundy.Sounds[randomSoundIndex];
+
+        AudioController.Instance.PlaySound(sound, false, Random.Range(soundy.MinVolume, soundy.MaxVolume), Random.Range(soundy.MinPitch, soundy.MaxPitch));
     }
 }

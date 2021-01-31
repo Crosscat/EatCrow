@@ -53,6 +53,18 @@ MonoBehaviour:
   - name: 1
     sound: {fileID: 8300000, guid: e070ae55fbb7c46408fce134311316c3, type: 3}
     defaultVolume: 1
+  - name: 5
+    sound: {fileID: 8300000, guid: 827d6ac7ea13cfe4aade2590a42df9e4, type: 3}
+    defaultVolume: 1
+  - name: 6
+    sound: {fileID: 8300000, guid: d1157912e2d3db24b8669b4048de9978, type: 3}
+    defaultVolume: 1
+  - name: 7
+    sound: {fileID: 8300000, guid: 0aa6a642486e1ef489d96f492fe9a1b7, type: 3}
+    defaultVolume: 1
+  - name: 8
+    sound: {fileID: 8300000, guid: 2a5f2ef2aa516c54490a1ba041826428, type: 3}
+    defaultVolume: 1
   Music:
   - name: 1
     sound: {fileID: 8300000, guid: 058296b1ec764fa4ca70d2cc84a41998, type: 3}

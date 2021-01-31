@@ -46,11 +46,11 @@ MonoBehaviour:
   SoundEffects: []
   Music:
   - name: 1
-    sound: {fileID: 8300000, guid: 223d12b3db98a0b4387e427cbeeaccd4, type: 3}
+    sound: {fileID: 8300000, guid: 058296b1ec764fa4ca70d2cc84a41998, type: 3}
     defaultVolume: 0.1
   - name: 2
-    sound: {fileID: 8300000, guid: 08218fccb56fff34fbbee5f3b559eeb5, type: 3}
+    sound: {fileID: 8300000, guid: cc4164ef9deca744dac715c2051a2251, type: 3}
     defaultVolume: 0.1
   - name: 3
-    sound: {fileID: 8300000, guid: ada1b71b5a3e29841bdc01cc90bcd8e5, type: 3}
+    sound: {fileID: 8300000, guid: 0205b7516df456f4bae178f7abe617e1, type: 3}
     defaultVolume: 0.1

@@ -21,9 +21,6 @@ public class CatAI : AIAgent
     public PlayerController player { get; private set; }
     public StateSelector stateSelector { get; private set; }
 
-    private Animator animator;
-    private SpriteRenderer spriteRenderer;
-
     public const float TARGET_SATISFACTION = .2f;
     public  const float TARGET_SATISFACTION_SQR = TARGET_SATISFACTION * TARGET_SATISFACTION;
 
@@ -35,11 +32,6 @@ public class CatAI : AIAgent
     public float sqrDistanceToPlayer
     {
         get { return deltaToPlayer.sqrMagnitude; }
-    }
-
-    public Vector2 Velocity
-    {
-        get { return physics.Velocity; }
     }
 
     public enum Methodology
@@ -84,8 +76,6 @@ public class CatAI : AIAgent
     {
         player = GameObject.FindObjectOfType<PlayerController>();
         physics = GetComponent<Physics>();
-        animator = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
         //TODO: set this properly
         //Currently just picks the closest zone
@@ -106,7 +96,7 @@ public class CatAI : AIAgent
 
     public void Animate(Animation animation)
     {
-        animator.SetInteger("State", (int)animation);
+        _animator.SetInteger("State", (int)animation);
     }
 
     public void WalkToTarget(Vector2 target)
@@ -132,7 +122,7 @@ public class CatAI : AIAgent
         if (physics.Grounded && xDist > TARGET_SATISFACTION)
         {
             Vector2 direction = Mathf.Sign(waypoint.x - transform.position.x) * Vector2.right;
-            physics.Move(direction, speed, moveAcceleration);
+            Move(direction, speed, moveAcceleration);
         }
 
         if (physics.Grounded 
@@ -146,7 +136,7 @@ public class CatAI : AIAgent
 
     public void Stop()
     {
-        physics.Move(Vector2.one, 0f, moveAcceleration);
+        Move(Vector2.one, 0f, moveAcceleration);
     }
 
     public bool PlayerInsideKillRadius()
@@ -167,12 +157,6 @@ public class CatAI : AIAgent
     public override void Update()
     {
         base.Update();
-
-        if (physics.Grounded)
-        {
-            if (Velocity.x > 0) spriteRenderer.flipX = true;
-            else if (Velocity.x < 0) spriteRenderer.flipX = false;
-        }
     }
 
     private void OnDrawGizmos()

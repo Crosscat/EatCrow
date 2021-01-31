@@ -9,7 +9,7 @@ public class Physics : MonoBehaviour
 
     public static float JumpLeniency = .05f;
 
-    private float _gravity = .2f;
+    public float Gravity = .4f;
     private const float _maxFall = 10;
     private const float _margin = .025f;
     private float _angleLeeway = 30;
@@ -93,7 +93,7 @@ public class Physics : MonoBehaviour
         // apply gravity if airborne
         if (!Grounded && HasGravity)
         {
-            Velocity.y = Mathf.Max(Velocity.y - _gravity, -_maxFall);
+            Velocity.y = Mathf.Max(Velocity.y - Gravity, -_maxFall);
         }
 
         if (Velocity.y < 0)

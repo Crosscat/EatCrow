@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 4572577856333629437}
   m_Layer: 0
   m_Name: PlayerCrow
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -109,6 +109,7 @@ MonoBehaviour:
   CalorieJumpFactor: 0.02
   CalorieSpeedFactor: 0.01
   CaloriesEaten: 0
+  Physics: {fileID: 0}
 --- !u!50 &2124918420468826977
 Rigidbody2D:
   serializedVersion: 4
@@ -195,6 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec854a11b26a7c146b69e3c7d4c9a2eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Gravity: 0.2
   Velocity: {x: 0, y: 0}
   HasGravity: 1
   DisableCollisions: 0

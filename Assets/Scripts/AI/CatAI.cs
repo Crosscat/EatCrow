@@ -262,6 +262,8 @@ public class CatAttackState : CatAIState
         base.Enter();
         catAI.Animate(CatAI.Animation.Attack);
 
+        AudioController.Instance.PlaySound(SoundEnum.CatAttack);
+
         Debug.Log("Cat is Attacking!");
     }
 

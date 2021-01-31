@@ -21,9 +21,9 @@ public class PathNode : MonoBehaviour
 
     private void DrawGizmos()
     {
-        Gizmos.DrawSphere(transform.position, .1f);
+        //Gizmos.DrawSphere(transform.position, .1f);
 
-        handleStyle.normal.textColor = Gizmos.color;
-        Handles.Label(transform.position, gameObject.name, handleStyle);
+        //handleStyle.normal.textColor = Gizmos.color;
+        //Handles.Label(transform.position, gameObject.name, handleStyle);
     }
 }

@@ -70,25 +70,25 @@ public class PathSegment: MonoBehaviour
 
     private void DrawGizmos()
     {
-        if (From != null && To != null)
-        {
-            Gizmos.DrawLine(FromPosition, ToPosition);
-            Vector2 direction = (ToPosition - FromPosition).normalized;
+        //if (From != null && To != null)
+        //{
+        //    Gizmos.DrawLine(FromPosition, ToPosition);
+        //    Vector2 direction = (ToPosition - FromPosition).normalized;
 
-            Vector2 arrowLeft = Quaternion.Euler(0, 0, -135) * direction * .4f;
-            Vector2 arrowRight = Quaternion.Euler(0, 0, 135) * direction * .4f;
+        //    Vector2 arrowLeft = Quaternion.Euler(0, 0, -135) * direction * .4f;
+        //    Vector2 arrowRight = Quaternion.Euler(0, 0, 135) * direction * .4f;
 
-            Gizmos.DrawLine(ToPosition, ToPosition + arrowLeft);
-            Gizmos.DrawLine(ToPosition, ToPosition + arrowRight);
-            if (!OneWay)
-            {
-                Gizmos.DrawLine(FromPosition, FromPosition - arrowLeft);
-                Gizmos.DrawLine(FromPosition, FromPosition - arrowRight);   
-            }
+        //    Gizmos.DrawLine(ToPosition, ToPosition + arrowLeft);
+        //    Gizmos.DrawLine(ToPosition, ToPosition + arrowRight);
+        //    if (!OneWay)
+        //    {
+        //        Gizmos.DrawLine(FromPosition, FromPosition - arrowLeft);
+        //        Gizmos.DrawLine(FromPosition, FromPosition - arrowRight);   
+        //    }
 
-            handleStyle.normal.textColor = Gizmos.color;
-            UnityEditor.Handles.Label(FromPosition + (ToPosition - FromPosition) / 2, gameObject.name, handleStyle);
-        }
+        //    handleStyle.normal.textColor = Gizmos.color;
+        //    UnityEditor.Handles.Label(FromPosition + (ToPosition - FromPosition) / 2, gameObject.name, handleStyle);
+        //}
      }
 }
 

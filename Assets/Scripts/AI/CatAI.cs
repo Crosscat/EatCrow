@@ -56,8 +56,10 @@ public class CatAI : AIAgent
         Attack = 1,
     }
 
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
+
         switch(methodology)
         {
             case Methodology.Standard: stateSelector = new StateSelector()

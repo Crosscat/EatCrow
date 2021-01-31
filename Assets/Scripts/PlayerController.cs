@@ -2,9 +2,49 @@ using System;
 using UnityEngine;
 
 using System.Linq;
-using System.Collections.Generic;
 
-public class PlayerController : StateMachine
+public class Entity : StateMachine
+{
+    public Physics Physics;
+    private RaycastLauncher _raycastLauncher;
+
+    private float _fallThroughTimer;
+
+    public virtual void Awake()
+    {
+        _raycastLauncher = GetComponent<RaycastLauncher>();
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if (_fallThroughTimer > 0)
+        {
+            _fallThroughTimer -= Time.deltaTime;
+            if (_fallThroughTimer <= 0)
+            {
+                var target = _raycastLauncher.RaycastTargets[1];
+                while (target.IgnoredDirections.Contains(Vector2.down))
+                {
+                    target.IgnoredDirections.Remove(Vector2.down);
+                }
+            }
+        }
+    }
+
+    public void DropThroughOneWayObstacle()
+    {
+        var target = _raycastLauncher.RaycastTargets[1];
+        if (!target.IgnoredDirections.Contains(Vector2.down))
+        {
+            target.IgnoredDirections.Add(Vector2.down);
+            _fallThroughTimer = .5f;
+        }
+    }
+}
+
+public class PlayerController : Entity
 {
     public float MoveSpeed;
     public float HorizontalMoveAcceleration;
@@ -17,15 +57,9 @@ public class PlayerController : StateMachine
 
     public float CaloriesEaten = 0;
 
-    private RaycastLauncher _raycastLauncher;
-    private List<RaycastTarget> _defaultRaycastTargets;
-
-    public Physics Physics;
     private FoodTracker _foodTracker;
     private Animator _animator;
     private SpriteRenderer _spriteRenderer;
-
-    private float _fallThroughTimer;
 
     private static class ANIMATION
     {
@@ -77,15 +111,14 @@ public class PlayerController : StateMachine
         }
     }
 
-
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
+
         Physics = GetComponent<Physics>();
         _foodTracker = GetComponent<FoodTracker>();
-        _raycastLauncher = GetComponent<RaycastLauncher>();
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
-        _defaultRaycastTargets = _raycastLauncher.RaycastTargets.ToList();
 
         ChangeState<PlayerGroundedState>();
     }
@@ -96,19 +129,6 @@ public class PlayerController : StateMachine
 
         if (Velocity.x > 0) _spriteRenderer.flipX = true;
         else if (Velocity.x < 0) _spriteRenderer.flipX = false;
-
-        if (_fallThroughTimer > 0)
-        {
-            _fallThroughTimer -= Time.deltaTime;
-            if (_fallThroughTimer <= 0)
-            {
-                var target = _raycastLauncher.RaycastTargets[1];
-                while (target.IgnoredDirections.Contains(Vector2.down))
-                {
-                    target.IgnoredDirections.Remove(Vector2.down);
-                }
-            }
-        }
     }
 
     public void Move(Vector2 direction)
@@ -134,16 +154,6 @@ public class PlayerController : StateMachine
         CaloriesEaten += calories;
     }
 
-    public void DropThroughOneWayObstacle()
-    {
-        var target = _raycastLauncher.RaycastTargets[1];
-        if (!target.IgnoredDirections.Contains(Vector2.down))
-        {
-            target.IgnoredDirections.Add(Vector2.down);
-            _fallThroughTimer = .5f;
-        }
-    }
-
     public void AnimateIdle()
     {
         _animator.SetInteger("State", ANIMATION.IDLE_BY_FATNESS[FatnessLevel]);
@@ -163,7 +173,6 @@ public class PlayerController : StateMachine
     {
         _animator.SetInteger("State", ANIMATION.EATING_BY_FATNESS[FatnessLevel]);
     }
-
 }
 
 public abstract class PlayerNormalState : State

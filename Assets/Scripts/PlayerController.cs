@@ -88,9 +88,13 @@ public class PlayerController : Entity
     public float CalorieJumpFactor = .02f;
     public float CalorieSpeedFactor = .01f;
 
+    public float Fat1Threshold = 8f;
+    public float Fat2Threshold = 16f;
+
     public float CaloriesEaten = 0;
 
     private FoodTracker _foodTracker;
+    private int[] currentAnimation = ANIMATION.IDLE_BY_FATNESS;
 
     private static class ANIMATION
     {
@@ -124,7 +128,8 @@ public class PlayerController : Entity
     {
         get 
         {
-            //TODO apply rule
+            if (CaloriesEaten >= Fat2Threshold) return 2;
+            if (CaloriesEaten >= Fat1Threshold) return 1;
             return 0;
         }
     }
@@ -173,26 +178,36 @@ public class PlayerController : Entity
     public void ConsumeCalories(float calories)
     {
         CaloriesEaten += calories;
+        RefreshAnimation();
     }
 
     public void AnimateIdle()
     {
-        _animator.SetInteger("State", ANIMATION.IDLE_BY_FATNESS[FatnessLevel]);
+        currentAnimation = ANIMATION.IDLE_BY_FATNESS;
+        RefreshAnimation();
     }
 
     public void AnimateFlying()
     {
-        _animator.SetInteger("State", ANIMATION.FLYING_BY_FATNESS[FatnessLevel]);
+        currentAnimation = ANIMATION.FLYING_BY_FATNESS;
+        RefreshAnimation();
     }
 
     public void AnimateWalking()
     {
-        _animator.SetInteger("State", ANIMATION.WALKING_BY_FATNESS[FatnessLevel]);
+        currentAnimation = ANIMATION.WALKING_BY_FATNESS;
+        RefreshAnimation();
     }
 
     public void AnimateEating()
     {
-        _animator.SetInteger("State", ANIMATION.EATING_BY_FATNESS[FatnessLevel]);
+        currentAnimation = ANIMATION.EATING_BY_FATNESS;
+        RefreshAnimation();
+    }
+
+    private void RefreshAnimation()
+    {
+        _animator.SetInteger("State", currentAnimation[FatnessLevel]);
     }
 }
 

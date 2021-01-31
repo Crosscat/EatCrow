@@ -119,7 +119,7 @@ public class AudioController : MonoBehaviour
         _targetVolume[_activeMusicSourceIndex] = 0;
     }
 
-    public void PlaySound(SoundEnum sound, bool loop = false, float volume = 0)
+    public void PlaySound(SoundEnum sound, bool loop = false, float volume = 0, float pitch = 1)
     {
         if (sound == SoundEnum.None) return;
 
@@ -130,6 +130,8 @@ public class AudioController : MonoBehaviour
         }
         var source = GetFreeAudioSource();
         if (source == null) return;
+
+        source.pitch = pitch;
 
         source.Stop();
         source.clip = s.sound;

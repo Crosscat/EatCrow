@@ -43,7 +43,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d074207f6b5053647854e9768ffe1ac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SoundEffects: []
+  SoundEffects:
+  - name: 2
+    sound: {fileID: 8300000, guid: 21c41a2b969d7344793f462dbbf6099f, type: 3}
+    defaultVolume: 1
+  - name: 4
+    sound: {fileID: 8300000, guid: e6e04832d7849134c920e3bb4d450f1a, type: 3}
+    defaultVolume: 1
   Music:
   - name: 1
     sound: {fileID: 8300000, guid: 058296b1ec764fa4ca70d2cc84a41998, type: 3}

@@ -50,6 +50,9 @@ MonoBehaviour:
   - name: 4
     sound: {fileID: 8300000, guid: e6e04832d7849134c920e3bb4d450f1a, type: 3}
     defaultVolume: 1
+  - name: 1
+    sound: {fileID: 8300000, guid: e070ae55fbb7c46408fce134311316c3, type: 3}
+    defaultVolume: 1
   Music:
   - name: 1
     sound: {fileID: 8300000, guid: 058296b1ec764fa4ca70d2cc84a41998, type: 3}

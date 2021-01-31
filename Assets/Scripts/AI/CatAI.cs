@@ -132,6 +132,13 @@ public class CatAI : AIAgent
         {
             physics.Jump(jumpPower);
         }
+
+        if (physics.Grounded
+            && xDist < 1f
+            && yDelta < 2)
+        {
+            DropThroughOneWayObstacle();
+        }
     }
 
     public void Stop()

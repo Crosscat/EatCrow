@@ -100,7 +100,7 @@ public class PlayerController : Entity
     {
         public static int[] IDLE_BY_FATNESS = { 0, 3, 5 };
         public static int[] FLYING_BY_FATNESS = { 1, 2, 4 };
-        public static int[] WALKING_BY_FATNESS = { 0, 3, 5 };
+        public static int[] WALKING_BY_FATNESS = { 9, 10, 4 };
         public static int[] EATING_BY_FATNESS = { 6, 7, 8 };
     }
 
@@ -149,7 +149,7 @@ public class PlayerController : Entity
         Physics = GetComponent<Physics>();
         _foodTracker = GetComponent<FoodTracker>();
 
-        ChangeState<PlayerGroundedState>();
+        ChangeState<PlayerIdleState>();
     }
 
     public override void Update()
@@ -344,7 +344,7 @@ public class PlayerFlyingState : PlayerNormalState
 
         if (_player.Grounded && !Liftable.Lifted)
         {
-            _player.ChangeState<PlayerGroundedState>();
+            _player.ChangeState<PlayerIdleState>();
         }
     }
 
@@ -396,7 +396,34 @@ public class PlayerFastFlyingState : PlayerFlyingState
 
 public class PlayerWalkingState : PlayerGroundedState
 {
-    //TODO
+    public override void Enter()
+    {
+        base.Enter();
+        _player.AnimateWalking();
+    }
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+        if (Mathf.Abs(_player.Velocity.x) < .001f)
+            _player.ChangeState<PlayerIdleState>();
+    }
+}
+
+public class PlayerIdleState : PlayerGroundedState
+{
+    public override void Enter()
+    {
+        base.Enter();
+        _player.AnimateIdle();
+    }
+
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+        if (Mathf.Abs(_player.Velocity.x) >= .001f)
+            _player.ChangeState<PlayerWalkingState>();
+    }
 }
 
 public class PlayerEatingState : PlayerGroundedState
@@ -423,7 +450,7 @@ public class PlayerEatingState : PlayerGroundedState
         Food foodToEat = _player.TryFindFood();
         if (foodToEat == null)
         {
-            _player.ChangeState<PlayerGroundedState>();
+            _player.ChangeState<PlayerIdleState>();
             return;
         }
 
@@ -435,7 +462,7 @@ public class PlayerEatingState : PlayerGroundedState
     {
         base.OnActionReleased(sender, e);
 
-        _player.ChangeState<PlayerGroundedState>();
+        _player.ChangeState<PlayerIdleState>();
     }
 
     protected override void OnPressJump(object sender, EventArgs e)

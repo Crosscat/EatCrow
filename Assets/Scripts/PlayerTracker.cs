@@ -2,4 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerTracker : TriggerTracker<PlayerController> { }
+public class PlayerTracker : TriggerTracker<PlayerController> 
+{
+
+}

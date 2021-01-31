@@ -5,11 +5,12 @@ using UnityEngine;
 
 using System.Linq;
 
-public class CatAI : StateMachine
+public class CatAI : AIAgent
 {
     public Methodology methodology;
     public float walkSpeed=1;
     public float runSpeed=2;
+    public float jumpPower = 10f;
     public float moveAcceleration;
     public float agroRange = 3f;
     public float deAgroRange = 9f;
@@ -17,12 +18,14 @@ public class CatAI : StateMachine
     public float attackDuration = .4f;
 
     public Physics physics { get; private set; }
-    public AIZone walkZone { get; private set; }
     public PlayerController player { get; private set; }
     public StateSelector stateSelector { get; private set; }
 
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+
+    public const float TARGET_SATISFACTION = .2f;
+    public  const float TARGET_SATISFACTION_SQR = TARGET_SATISFACTION * TARGET_SATISFACTION;
 
     public Vector2 deltaToPlayer
     {
@@ -84,10 +87,10 @@ public class CatAI : StateMachine
 
         //TODO: set this properly
         //Currently just picks the closest zone
-        walkZone = GameObject.FindObjectsOfType<AIZone>()
-                             .Where(it => it.walkable)
-                             .OrderBy(it => (it.transform.position - this.transform.position).sqrMagnitude)
-                             .First();
+        //walkZone = GameObject.FindObjectsOfType<AIZone>()
+        //                     .Where(it => it.walkable)
+        //                     .OrderBy(it => (it.transform.position - this.transform.position).sqrMagnitude)
+        //                     .First();
 
         stateSelector.Passive();
     }
@@ -104,14 +107,39 @@ public class CatAI : StateMachine
         animator.SetInteger("State", (int)animation);
     }
 
-    public void Walk(Vector2 direction)
+    public void WalkToTarget(Vector2 target)
     {
-        physics.Move(direction, walkSpeed, moveAcceleration);
+        MoveToTarget(target, walkSpeed);
     }
 
-    public void Run(Vector2 direction)
+    public void RunToTarget(Vector2 target)
     {
-        physics.Move(direction, runSpeed, moveAcceleration);
+        MoveToTarget(target, runSpeed);
+    }
+
+    private void MoveToTarget(Vector2 target, float speed)
+    {
+        if ((transform.position2() - target).sqrMagnitude < TARGET_SATISFACTION_SQR)
+            return;
+
+        Vector2 waypoint = WaypointToTarget(target);
+
+        float xDist = Mathf.Abs(waypoint.x - transform.position.x);
+        float yDelta= waypoint.y - transform.position.y;
+
+        if (physics.Grounded && xDist > TARGET_SATISFACTION)
+        {
+            Vector2 direction = Mathf.Sign(waypoint.x - transform.position.x) * Vector2.right;
+            physics.Move(direction, speed, moveAcceleration);
+        }
+
+        if (physics.Grounded 
+            && xDist < 1f
+            && yDelta > attackRange
+            && yDelta < 8)
+        {
+            physics.Jump(jumpPower);
+        }
     }
 
     public void Stop()
@@ -129,12 +157,6 @@ public class CatAI : StateMachine
         return sqrDistanceToPlayer < agroRange*agroRange;
     }
 
-    public bool PlayerInsideWalkzoneX()
-    {
-        return walkZone.Rect.xMin < player.transform.position.x 
-                                 && player.transform.position.x < walkZone.Rect.xMax;
-    }
-
     public bool PlayerOutsideDeAgroRadius()
     {
         return sqrDistanceToPlayer > deAgroRange*deAgroRange;
@@ -144,8 +166,11 @@ public class CatAI : StateMachine
     {
         base.Update();
 
-        if (Velocity.x > 0) spriteRenderer.flipX = true;
-        else if (Velocity.x < 0) spriteRenderer.flipX = false;
+        if (physics.Grounded)
+        {
+            if (Velocity.x > 0) spriteRenderer.flipX = true;
+            else if (Velocity.x < 0) spriteRenderer.flipX = false;
+        }
     }
 
     private void OnDrawGizmos()
@@ -158,13 +183,11 @@ public class CatAI : StateMachine
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, deAgroRange);
+    }
 
-        if (walkZone != null)
-        {
-            Gizmos.color = Color.white;
-            Gizmos.DrawLine(transform.position + Vector3.up, walkZone.Rect.bottomLeft());
-            Gizmos.DrawLine(transform.position + Vector3.up, walkZone.Rect.bottomRight());
-        }
+    private void OnDrawGizmosSelected()
+    {
+
     }
 
     public class StateSelector
@@ -183,9 +206,7 @@ public abstract class CatAIState : State
 
 public class CatWanderState : CatAIState
 {
-    private float target;
-
-    private const float TARGET_SATISFACTION = .2f;
+    private Vector2 target;
 
     public override void Enter()
     {
@@ -199,37 +220,37 @@ public class CatWanderState : CatAIState
     {
         base.StateUpdate();
 
-        if (catAI.PlayerInsideAgroRadius() && catAI.PlayerInsideWalkzoneX())
+        if (catAI.PlayerInsideAgroRadius())
         {
             catAI.stateSelector.Chase();
             return;
         }
 
-        while (Mathf.Abs(target - catAI.transform.position.x) < TARGET_SATISFACTION)
+        var asdf = (target - catAI.transform.position2()).sqrMagnitude;
+
+        while ((target - catAI.transform.position2()).sqrMagnitude < CatAI.TARGET_SATISFACTION_SQR)
         {
             SelectTarget();
         }
 
-        Debug.DrawLine(catAI.transform.position, new Vector2(target, catAI.transform.position.y), Color.blue);
+        Debug.DrawLine(catAI.transform.position + Vector3.up, target, Color.blue);
 
-        catAI.Walk(Mathf.Sign(target - catAI.transform.position.x) * Vector2.right);
+        catAI.WalkToTarget(target);
     }
 
     private void SelectTarget()
     {
-        target = UnityEngine.Random.Range(catAI.walkZone.Rect.xMin, catAI.walkZone.Rect.xMax);
+        target = catAI.pathWeb.InterpolatedPoints.PickRandom();
     }
 }
 
 public class CatChaseState : CatAIState
 {
-    private const float X_SATISFACTION = .2f;
-
     public override void StateUpdate()
     {
         base.StateUpdate();
 
-        if (catAI.PlayerOutsideDeAgroRadius() || !catAI.PlayerInsideWalkzoneX())
+        if (catAI.PlayerOutsideDeAgroRadius())
         {
             catAI.stateSelector.Passive();
             return;
@@ -241,18 +262,8 @@ public class CatChaseState : CatAIState
             return;
         }
 
-        //Don't move if already very close to crow's x position, 
-        //such as when the crow flies directly above
-        if (Mathf.Abs(catAI.deltaToPlayer.x) > X_SATISFACTION)
-        {
-            catAI.Animate(CatAI.Animation.Run);
-            catAI.Run(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
-        }
-        else
-        {
-            catAI.Animate(CatAI.Animation.Idle);
-            catAI.Stop();
-        }
+        catAI.Animate(CatAI.Animation.Run);
+        catAI.RunToTarget(catAI.player.transform.position);        
 
         Debug.DrawLine(catAI.transform.position, catAI.player.transform.position, Color.yellow);
     }
@@ -299,22 +310,14 @@ public class CatHuntingState : CatAIState
     {
         base.StateUpdate();
 
-        if (catAI.PlayerInsideAgroRadius() && catAI.PlayerInsideWalkzoneX())
+        if (catAI.PlayerInsideAgroRadius())
         {
             catAI.stateSelector.Chase();
             return;
         }
 
-        if (Mathf.Abs(catAI.deltaToPlayer.x) > X_SATISFACTION && catAI.PlayerInsideWalkzoneX())
-        {
-            catAI.Animate(CatAI.Animation.Run);
-            catAI.Walk(Mathf.Sign(catAI.deltaToPlayer.x) * Vector2.right);
-        }
-        else
-        {
-            catAI.Animate(CatAI.Animation.Idle);
-            catAI.Stop();
-        }
+        catAI.Animate(CatAI.Animation.Run);
+        catAI.WalkToTarget(catAI.player.transform.position);
     }
 }
 

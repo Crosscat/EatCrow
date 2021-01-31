@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(RectTransform))]
+[ExecuteInEditMode]
 public class AIZone : MonoBehaviour
 {
     public bool walkable;
